@@ -1,63 +1,28 @@
 #!/usr/bin/python3
-"""Solves the lock boxes puzzle"""
-
-def look_next_opened_box(opened_boxes):
-  """Looks for the next opened box
-  Args:
-      opened_boxes (dict): Dictionary which contains boxes already opened
-  Returns:
-      list: List with the keys contained in the opened box
-  """
-  for index, box in opened_boxes.items():
-      if box.get('status') == 'opened':
-          box['status'] = 'opened/checked'
-          return box.get('keys')
-  return None
+"""
+    This program will determine whether or not a set of boxes
+    together contain the keys to unlock all boxes
+"""
 
 
 def canUnlockAll(boxes):
-    """checks if all boxes can be opened
-    Args:
-        boxes (list): List which contain all the boxes with the keys
-    Returns:
-        bool: True if all boxes can be opened, otherwise, false
-    """
-    if len(boxes) <= 1 or boxes == [[]]:
-        return true
-        aux = {}
-    while True:
-        if len(aux) == 0:
-            aux[0] = {
-                'status': 'opened',
-                'keys': boxes[0],
-            }
-        keys = look_next_opened_box(aux)
-        if keys:
-            for key in keys:
-                try:
-                    if aux.get(key) and aux.get(key).get('status') \
-                       == 'opened/checked':
-                        continue
-                    aux[key] = {
-                        'status': 'opened',
-                        'keys': boxes[key]
-                    }
-                except (KeyError, IndexError):
-                    continue
-        elif 'opened' in [box.get('status') for box in aux.values()]:
-            continue
-        elif len(aux) == len(boxes):
-            break
-        else:
-            return False
+    """ Determine if all boxes can be unlocked """
+    if boxes:
+        keys = [0]
+        keysNeeded = [i[0] for i in enumerate(boxes)]
 
-    return len(aux) == len(boxes)
+        # Collect keys from all unlockable boxes beginning with 0
+        collectKeys(boxes, keys)
+
+        # Return true or false depending on if keys present match key needed
+        return sorted(keys) == keysNeeded
+    else:
+        return True
 
 
-def main():
-    """Entry point"""
-    canUnlockAll([[]])
-
-
-if __name__ == '__main__':
-    main()
+def collectKeys(boxes, keys, key=0):
+    """ Recursively collect all unique keys from all boxes """
+    for newKey in boxes[key]:
+        if newKey not in keys and newKey < len(boxes):
+            keys.append(newKey)
+            collectKeys(boxes, keys, newKey)
